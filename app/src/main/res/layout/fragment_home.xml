@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/colorBackground"
+    tools:context=".HomeFragment">
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recyclerView"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/ly_music_play"
+        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+        android:orientation="vertical"
+        tools:listitem="@layout/item_music"/>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/ly_music_play"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintBottom_toBottomOf="parent"
+        android:background="@color/colorBackground">
+
+        <ProgressBar
+            android:id="@+id/progressBar"
+            android:layout_width="match_parent"
+            android:layout_height="2dp"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toTopOf="@id/card_image_music"
+            style="@style/Widget.AppCompat.ProgressBar.Horizontal"/>
+
+        <androidx.cardview.widget.CardView
+            android:id="@+id/card_image_music"
+            android:layout_width="60dp"
+            android:layout_height="60dp"
+            app:cardElevation="0dp"
+            app:cardBackgroundColor="#1E88E5"
+            app:layout_constraintTop_toBottomOf="@id/progressBar"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="8dp"
+            android:layout_marginBottom="8dp"
+            app:cardCornerRadius="8dp">
+
+            <ImageView
+                android:id="@+id/image_music"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintRight_toRightOf="parent"
+                android:background="@drawable/song"
+                android:layout_gravity="center"/>
+
+        </androidx.cardview.widget.CardView>
+
+        <TextView
+            android:id="@+id/tv_name"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:textStyle="normal"
+            android:textSize="20sp"
+            android:text="Believer"
+            android:maxLines="1"
+            android:gravity="bottom"
+            android:textColor="@color/black"
+            android:ellipsize="end"
+            app:layout_constraintLeft_toRightOf="@id/card_image_music"
+            app:layout_constraintTop_toTopOf="@id/card_image_music"
+            app:layout_constraintBottom_toTopOf="@id/tv_artist"
+            app:layout_constraintRight_toLeftOf="@id/image_back_music"
+            android:layout_marginTop="4dp"
+            android:layout_marginStart="8dp"
+            android:layout_marginEnd="16dp"
+            tools:ignore="HardcodedText" />
+
+        <TextView
+            android:id="@+id/tv_artist"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:textStyle="normal"
+            android:textSize="15sp"
+            android:text="IMAGINE DRAGON"
+            android:maxLines="1"
+            android:textColor="@color/colorPrimary"
+            android:ellipsize="end"
+            app:layout_constraintLeft_toRightOf="@id/card_image_music"
+            app:layout_constraintTop_toBottomOf="@id/tv_name"
+            app:layout_constraintBottom_toBottomOf="@id/card_image_music"
+            app:layout_constraintRight_toLeftOf="@id/image_back_music"
+            android:layout_marginStart="8dp"
+            android:layout_marginEnd="16dp"
+            tools:ignore="HardcodedText" />
+
+        <ImageView
+            android:id="@+id/image_back_music"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintRight_toLeftOf="@id/image_play"
+            android:src="@drawable/ic_skip_back"
+            android:layout_marginEnd="16dp"/>
+
+        <ImageView
+            android:id="@+id/image_play"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintRight_toLeftOf="@id/image_next_music"
+            android:src="@drawable/ic_play"
+            android:layout_marginEnd="16dp"/>
+
+        <ImageView
+            android:id="@+id/image_next_music"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+            android:src="@drawable/ic_skip_fwd"
+            android:layout_marginEnd="16dp"/>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>
