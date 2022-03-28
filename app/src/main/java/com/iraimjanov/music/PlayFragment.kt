@@ -17,14 +17,18 @@ import com.bumptech.glide.request.RequestOptions
 import com.iraimjanov.music.Objects.MediaPlayerService.mediaPlayer
 import com.iraimjanov.music.Objects.Object
 import com.iraimjanov.music.databinding.FragmentPlayBinding
+import com.iraimjanov.music.models.AppDatabase
+import com.iraimjanov.music.models.FavoriteMusic
 
 class PlayFragment : Fragment() {
     lateinit var binding: FragmentPlayBinding
     lateinit var handler: Handler
     lateinit var runnable: Runnable
+    lateinit var appDatabase: AppDatabase
     private var position = Object.position
     private var mode = "order"
     private var booleanProgress = true
+    private var liked = false
     private val countDownTimer = object : CountDownTimer(1000, 1) {
         override fun onTick(millisUntilFinished: Long) {
             val layoutParams = binding.cardMusicPhoto.layoutParams
@@ -48,12 +52,18 @@ class PlayFragment : Fragment() {
     override fun onResume() {
         super.onResume()
         Object.playFragment = true
+        appDatabase = AppDatabase.getInstance(requireActivity())
+        liked = buildLiked(Object.arrayListMusic[position].id)
         Glide.with(requireActivity()).load(Object.arrayListMusic[position].imagePath).centerCrop()
             .apply(RequestOptions().placeholder(R.drawable.song)).into(binding.imageMusicPhoto)
         countDownTimer.start()
         buildRunnable()
         loadData()
         buildImageViewMode()
+
+        if(liked){
+            binding.imageLiked.setImageResource(R.drawable.ic_favorite)
+        }
 
         binding.imageBack.setOnClickListener {
             findNavController().popBackStack()
@@ -143,6 +153,43 @@ class PlayFragment : Fragment() {
                 }
             }
         }
+
+        binding.imageLiked.setOnClickListener {
+            val boolean = liked
+            if (boolean){
+                val favoriteMusic = FavoriteMusic()
+                favoriteMusic.id = Object.arrayListMusic[Object.position].id
+                favoriteMusic.title = Object.arrayListMusic[Object.position].title
+                favoriteMusic.imagePath = Object.arrayListMusic[Object.position].imagePath
+                favoriteMusic.musicPath = Object.arrayListMusic[Object.position].musicPath
+                favoriteMusic.author = Object.arrayListMusic[Object.position].author
+                appDatabase.myDao().deleteMusic(favoriteMusic)
+                binding.imageLiked.setImageResource(R.drawable.ic_favorite_border)
+                liked = false
+            }else{
+                val favoriteMusic = FavoriteMusic()
+                favoriteMusic.id = Object.arrayListMusic[Object.position].id
+                favoriteMusic.title = Object.arrayListMusic[Object.position].title
+                favoriteMusic.imagePath = Object.arrayListMusic[Object.position].imagePath
+                favoriteMusic.musicPath = Object.arrayListMusic[Object.position].musicPath
+                favoriteMusic.author = Object.arrayListMusic[Object.position].author
+                appDatabase.myDao().addMusic(favoriteMusic)
+                binding.imageLiked.setImageResource(R.drawable.ic_favorite)
+                liked = true
+            }
+
+        }
+    }
+
+    private fun buildLiked(id: Long): Boolean {
+        var boolean = false
+        val arrayListLiked = appDatabase.myDao().show() as ArrayList
+        for (i in arrayListLiked) {
+            if (i.id == id){
+                boolean = true
+            }
+        }
+        return boolean
     }
 
     private fun buildRunnable() {

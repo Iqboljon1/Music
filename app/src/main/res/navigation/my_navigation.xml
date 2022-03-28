@@ -13,10 +13,18 @@
         <action
             android:id="@+id/action_homeFragment_to_playFragment"
             app:destination="@id/playFragment" />
+        <action
+            android:id="@+id/action_homeFragment_to_favoriteFragment2"
+            app:destination="@id/favoriteFragment2" />
     </fragment>
     <fragment
         android:id="@+id/playFragment"
         android:name="com.iraimjanov.music.PlayFragment"
         android:label="fragment_play"
         tools:layout="@layout/fragment_play" />
+    <fragment
+        android:id="@+id/favoriteFragment2"
+        android:name="com.iraimjanov.music.FavoriteFragment"
+        android:label="fragment_favorite"
+        tools:layout="@layout/fragment_favorite" />
 </navigation>

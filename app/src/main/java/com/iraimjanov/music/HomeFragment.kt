@@ -8,7 +8,6 @@ import android.database.Cursor
 import android.graphics.Color
 import android.media.MediaPlayer
 import android.net.Uri
-import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
@@ -16,12 +15,10 @@ import android.provider.MediaStore
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.annotation.RequiresApi
 import androidx.core.app.ActivityCompat
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import com.bumptech.glide.Glide
-import com.iraimjanov.music.Objects.MediaPlayerService
 import com.iraimjanov.music.Objects.MediaPlayerService.mediaPlayer
 import com.iraimjanov.music.Objects.Object
 import com.iraimjanov.music.adapter.RecyclerViewAdapter
@@ -187,7 +184,7 @@ class HomeFragment : Fragment() {
 
     @SuppressLint("Range")
     private fun loadMusicInDevices(): ArrayList<Music> {
-        // Initialize an empty mutable list of music
+        // Initialize an empty  ArrayList of music
         val list = ArrayList<Music>()
 
         // Get the external storage media store audio uri
