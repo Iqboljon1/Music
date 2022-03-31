@@ -23,13 +23,17 @@ import com.iraimjanov.music.Objects.MediaPlayerService.mediaPlayer
 import com.iraimjanov.music.Objects.Object
 import com.iraimjanov.music.adapter.RecyclerViewAdapter
 import com.iraimjanov.music.databinding.FragmentHomeBinding
+import com.iraimjanov.music.models.AppDatabase
+import com.iraimjanov.music.models.FavoriteMusic
 import com.iraimjanov.music.models.Music
 
 class HomeFragment : Fragment() {
     lateinit var handler: Handler
     private lateinit var binding: FragmentHomeBinding
     private lateinit var arrayListMusic: ArrayList<Music>
+    private lateinit var arrayListFavoriteMusic: ArrayList<FavoriteMusic>
     private lateinit var recyclerViewAdapter: RecyclerViewAdapter
+    private lateinit var appDatabase: AppDatabase
     private var positionMusic = Object.position
     private lateinit var runnable: Runnable
 
@@ -38,14 +42,19 @@ class HomeFragment : Fragment() {
         savedInstanceState: Bundle?,
     ): View {
         binding = FragmentHomeBinding.inflate(layoutInflater)
-
         return binding.root
     }
 
     override fun onResume() {
         super.onResume()
+        appDatabase = AppDatabase.getInstance(requireActivity())
         Object.homeFragment = true
-        positionMusic = Object.position
+        positionMusic = if (Object.booleanFavoriteMode){
+            Object.positionFavoriteMusic
+
+        }else{
+            Object.position
+        }
         arrayListMusic = ArrayList()
 
         if (ActivityCompat.checkSelfPermission(requireActivity(),
@@ -53,11 +62,13 @@ class HomeFragment : Fragment() {
         ) {
             buildRunnable()
             arrayListMusic = loadMusicInDevices()
+            arrayListFavoriteMusic = appDatabase.myDao().show() as ArrayList<FavoriteMusic>
             recyclerViewAdapter = RecyclerViewAdapter(requireActivity(),
                 arrayListMusic,
                 object : RecyclerViewAdapter.RvItemClick {
                     override fun itemClick(position: Int) {
                         positionMusic = position
+                        Object.booleanFavoriteMode = false
                         mediaPlayer!!.stop()
                         mediaPlayer = MediaPlayer.create(requireActivity(), Uri.parse(arrayListMusic[position].musicPath))
                         playMusic(positionMusic)
@@ -87,37 +98,81 @@ class HomeFragment : Fragment() {
                 }
             }
 
+            binding.imageFavorite.setOnClickListener {
+                Object.arrayListMusic = arrayListMusic
+                if (Object.booleanFavoriteMode){
+                    Object.positionFavoriteMusic = positionMusic
+                }else {
+                    Object.position = positionMusic
+                }
+                findNavController().navigate(R.id.action_homeFragment_to_favoriteFragment2)
+            }
+
             binding.imageNextMusic.setOnClickListener {
-                if (++positionMusic < arrayListMusic.size) {
-                    mediaPlayer!!.stop()
-                    mediaPlayer = MediaPlayer.create(requireActivity(),
-                        Uri.parse(arrayListMusic[positionMusic].musicPath))
-                    playMusic(positionMusic)
-                    mediaPlayer!!.start()
+                if (Object.booleanFavoriteMode) {
+                    if (++positionMusic < arrayListFavoriteMusic.size) {
+                        mediaPlayer!!.stop()
+                        mediaPlayer = MediaPlayer.create(requireActivity(),
+                            Uri.parse(arrayListFavoriteMusic[positionMusic].musicPath))
+                        playMusic(positionMusic)
+                        mediaPlayer!!.start()
+                    } else {
+                        positionMusic = 0
+                        mediaPlayer!!.stop()
+                        mediaPlayer = MediaPlayer.create(requireActivity(),
+                            Uri.parse(arrayListFavoriteMusic[positionMusic].musicPath))
+                        playMusic(positionMusic)
+                        mediaPlayer!!.start()
+                    }
                 } else {
-                    positionMusic = 0
-                    mediaPlayer!!.stop()
-                    mediaPlayer = MediaPlayer.create(requireActivity(),
-                        Uri.parse(arrayListMusic[positionMusic].musicPath))
-                    playMusic(positionMusic)
-                    mediaPlayer!!.start()
+                    if (++positionMusic < arrayListMusic.size) {
+                        mediaPlayer!!.stop()
+                        mediaPlayer = MediaPlayer.create(requireActivity(),
+                            Uri.parse(arrayListMusic[positionMusic].musicPath))
+                        playMusic(positionMusic)
+                        mediaPlayer!!.start()
+                    } else {
+                        positionMusic = 0
+                        mediaPlayer!!.stop()
+                        mediaPlayer = MediaPlayer.create(requireActivity(),
+                            Uri.parse(arrayListMusic[positionMusic].musicPath))
+                        playMusic(positionMusic)
+                        mediaPlayer!!.start()
+                    }
                 }
             }
 
             binding.imageBackMusic.setOnClickListener {
-                if (--positionMusic >= 0) {
-                    mediaPlayer!!.stop()
-                    mediaPlayer = MediaPlayer.create(requireActivity(),
-                        Uri.parse(arrayListMusic[positionMusic].musicPath))
-                    playMusic(positionMusic)
-                    mediaPlayer!!.start()
+                if (Object.booleanFavoriteMode) {
+                    if (--positionMusic >= 0) {
+                        mediaPlayer!!.stop()
+                        mediaPlayer = MediaPlayer.create(requireActivity(),
+                            Uri.parse(arrayListFavoriteMusic[positionMusic].musicPath))
+                        playMusic(positionMusic)
+                        mediaPlayer!!.start()
+                    } else {
+                        positionMusic = arrayListFavoriteMusic.size - 1
+                        mediaPlayer!!.stop()
+                        mediaPlayer = MediaPlayer.create(requireActivity(),
+                            Uri.parse(arrayListFavoriteMusic[positionMusic].musicPath))
+                        playMusic(positionMusic)
+                        mediaPlayer!!.start()
+                    }
                 } else {
-                    positionMusic = arrayListMusic.size - 1
-                    mediaPlayer!!.stop()
-                    mediaPlayer = MediaPlayer.create(requireActivity(),
-                        Uri.parse(arrayListMusic[positionMusic].musicPath))
-                    playMusic(positionMusic)
-                    mediaPlayer!!.start()
+                    if (--positionMusic >= 0) {
+                        mediaPlayer!!.stop()
+                        mediaPlayer = MediaPlayer.create(requireActivity(),
+                            Uri.parse(arrayListMusic[positionMusic].musicPath))
+                        playMusic(positionMusic)
+                        mediaPlayer!!.start()
+                    } else {
+                        positionMusic = arrayListMusic.size - 1
+                        mediaPlayer!!.stop()
+                        mediaPlayer = MediaPlayer.create(requireActivity(),
+                            Uri.parse(arrayListMusic[positionMusic].musicPath))
+                        playMusic(positionMusic)
+                        mediaPlayer!!.start()
+                    }
                 }
             }
 
@@ -139,19 +194,40 @@ class HomeFragment : Fragment() {
                     binding.imagePlay.setImageResource(R.drawable.ic_play)
                 }
                 if (binding.progressBar.progress == binding.progressBar.max) {
-                    if (++positionMusic < arrayListMusic.size) {
-                        mediaPlayer!!.stop()
-                        mediaPlayer = MediaPlayer.create(requireActivity(),
-                            Uri.parse(arrayListMusic[positionMusic].musicPath))
-                        playMusic(positionMusic)
-                        mediaPlayer!!.start()
-                    } else {
-                        positionMusic = 0
-                        mediaPlayer!!.stop()
-                        mediaPlayer = MediaPlayer.create(requireActivity(),
-                            Uri.parse(arrayListMusic[positionMusic].musicPath))
-                        playMusic(positionMusic)
-                        mediaPlayer!!.start()
+                    if (Object.booleanFavoriteMode){
+                        if (++positionMusic < arrayListFavoriteMusic.size) {
+                            Object.positionFavoriteMusic = positionMusic
+                            mediaPlayer!!.stop()
+                            mediaPlayer = MediaPlayer.create(requireActivity(),
+                                Uri.parse(arrayListFavoriteMusic[positionMusic].musicPath))
+                            playMusic(positionMusic)
+                            mediaPlayer!!.start()
+                        } else {
+                            positionMusic = 0
+                            Object.positionFavoriteMusic = positionMusic
+                            mediaPlayer!!.stop()
+                            mediaPlayer = MediaPlayer.create(requireActivity(),
+                                Uri.parse(arrayListFavoriteMusic[positionMusic].musicPath))
+                            playMusic(positionMusic)
+                            mediaPlayer!!.start()
+                        }
+                    }else {
+                        if (++positionMusic < arrayListMusic.size) {
+                            Object.position = positionMusic
+                            mediaPlayer!!.stop()
+                            mediaPlayer = MediaPlayer.create(requireActivity(),
+                                Uri.parse(arrayListMusic[positionMusic].musicPath))
+                            playMusic(positionMusic)
+                            mediaPlayer!!.start()
+                        } else {
+                            positionMusic = 0
+                            Object.position = positionMusic
+                            mediaPlayer!!.stop()
+                            mediaPlayer = MediaPlayer.create(requireActivity(),
+                                Uri.parse(arrayListMusic[positionMusic].musicPath))
+                            playMusic(positionMusic)
+                            mediaPlayer!!.start()
+                        }
                     }
                 }
                 // So it doesn't work in another fragment
@@ -163,9 +239,19 @@ class HomeFragment : Fragment() {
     }
 
     private fun buildMediaPlayerLayout() {
+        if (Object.booleanFavoriteMode){
+            binding.tvName.text = arrayListFavoriteMusic[positionMusic].title
+            binding.tvArtist.text = arrayListFavoriteMusic[positionMusic].author
+            Glide.with(requireActivity()).load(arrayListFavoriteMusic[positionMusic].imagePath).centerCrop()
+                .into(binding.imageMusic)
+        }else{
+            binding.tvName.text = arrayListMusic[positionMusic].title
+            binding.tvArtist.text = arrayListMusic[positionMusic].author
+            Glide.with(requireActivity()).load(arrayListMusic[positionMusic].imagePath).centerCrop()
+                .into(binding.imageMusic)
+        }
+
         binding.progressBar.progressTintList = ColorStateList.valueOf(Color.parseColor("#1E88E5"));
-        binding.tvName.text = arrayListMusic[positionMusic].title
-        binding.tvArtist.text = arrayListMusic[positionMusic].author
         binding.progressBar.max = mediaPlayer!!.duration
         if (mediaPlayer!!.isPlaying) {
             binding.imagePlay.setImageResource(R.drawable.ic_pause)
@@ -173,13 +259,35 @@ class HomeFragment : Fragment() {
     }
 
     private fun playMusic(position: Int) {
-        binding.tvName.text = arrayListMusic[position].title
-        binding.tvArtist.text = arrayListMusic[position].author
-        Glide.with(requireActivity()).load(arrayListMusic[position].imagePath).centerCrop().into(binding.imageMusic)
+        if (Object.booleanFavoriteMode){
+            binding.tvName.text = arrayListFavoriteMusic[position].title
+            binding.tvArtist.text = arrayListFavoriteMusic[position].author
+            Glide.with(requireActivity()).load(arrayListFavoriteMusic[position].imagePath).centerCrop()
+                .into(binding.imageMusic)
+        }else{
+            binding.tvName.text = arrayListMusic[position].title
+            binding.tvArtist.text = arrayListMusic[position].author
+            Glide.with(requireActivity()).load(arrayListMusic[position].imagePath).centerCrop()
+                .into(binding.imageMusic)
+        }
         binding.progressBar.max = mediaPlayer!!.duration
         binding.imagePlay.setImageResource(R.drawable.ic_pause)
         handler = Handler(Looper.getMainLooper())
         handler.postDelayed(runnable, 1)
+    }
+
+    override fun onStop() {
+        if(Object.booleanFavoriteMode) {
+            Object.positionFavoriteMusic = positionMusic
+        }else{
+            Object.position = positionMusic
+        }
+        super.onStop()
+    }
+
+    override fun onDestroyView() {
+        Object.homeFragment = false
+        super.onDestroyView()
     }
 
     @SuppressLint("Range")
@@ -232,12 +340,6 @@ class HomeFragment : Fragment() {
         // Finally, return the music files list
         return list
     }
-
-    override fun onDestroyView() {
-        Object.homeFragment = false
-        super.onDestroyView()
-    }
-
 }
 
 

@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<MotionScene 
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:motion="http://schemas.android.com/apk/res-auto">
+
+    <Transition
+        motion:constraintSetEnd="@+id/end"
+        motion:constraintSetStart="@id/start"
+        motion:duration="1000">
+        <OnSwipe
+            motion:dragDirection="dragUp"
+            motion:dragScale="1"
+            motion:moveWhenScrollAtTop="false"
+            motion:onTouchUp="stop"
+            motion:touchAnchorId="@id/recyclerView"
+            motion:touchAnchorSide="top"/>
+    </Transition>
+
+    <ConstraintSet android:id="@+id/start">
+    </ConstraintSet>
+
+    <ConstraintSet android:id="@+id/end">
+
+        <Constraint
+            android:id="@+id/ly_actionBar"
+            android:layout_width="match_parent"
+            android:layout_height="?actionBarSize"
+            motion:layout_constraintLeft_toLeftOf="parent"
+            motion:layout_constraintRight_toRightOf="parent"
+            motion:layout_constraintTop_toTopOf="parent"
+            android:visibility="invisible"/>
+
+        <Constraint
+            android:id="@+id/recyclerView"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:orientation="vertical"
+            motion:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+            motion:layout_constraintBottom_toTopOf="@id/ly_music_play"
+            motion:layout_constraintTop_toTopOf="parent"/>
+
+    </ConstraintSet>
+</MotionScene>
